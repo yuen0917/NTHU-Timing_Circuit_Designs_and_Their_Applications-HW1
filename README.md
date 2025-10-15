@@ -12,21 +12,25 @@ Following the assignment instructions, the project delivers:
 
 ## Successive Approximation(midpoint decision)
 If we want to find the closest x to the target, we can use the midpoint decision to decide whether to keep the bit.
+
 $$
 |y_{\text{try}} - target| < |y_{\text{cur}} - target| \Rightarrow \text{keep the bit}
 $$
 
 We can get the following inequality:
+
 $$
 target \lt \frac{y_{\text{cur}} + y_{\text{try}}}{2}
 $$
 
 Midpoint of $y_{\text{cur}}$ and $y_{\text{try}}$ is:
+
 $$
 \frac{y_{\text{cur}} + y_{\text{try}}}{2}
 $$
 
 So we can use the midpoint decision to decide whether to keep the bit.
+
 $$
 target \lt \frac{y_{\text{cur}} + y_{\text{try}}}{2}
 $$
