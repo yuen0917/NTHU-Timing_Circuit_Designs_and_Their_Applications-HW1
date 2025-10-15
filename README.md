@@ -11,6 +11,13 @@ Following the assignment instructions, the project delivers:
 5. Physical design: generate a layout using an APR tool (e.g., Encounter). Provide post-layout timing and power. Compare max frequency and power to pre-layout results.
 
 ## Successive Approximation(midpoint decision)
+### Mathematical derivation
+Original equation:
+
+$$
+y = 1000 - 30x
+$$
+
 If we want to find the closest x to the target, we can use the midpoint decision to decide whether to keep the bit.
 
 $$
@@ -29,10 +36,10 @@ $$
 \frac{y_{\text{cur}} + y_{\text{try}}}{2}
 $$
 
-So we can use the midpoint decision to decide whether to keep the bit(set $1000 = y_{\text{cur}}$).
+So we can use the midpoint decision to decide whether to keep the bit(set $1000 = y_{\text{cur}}$ beginning).
 
 $$
-y_{\text{try}} = y_{\text{cur}} - 15 \times 2^k = 1000 - 15 \times 2^k
+y_{\text{try}} = y_{\text{cur}} - 30 \times 2^k = 1000 - 30 \times 2^k
 $$
 
 And the midpoint is:
@@ -42,3 +49,23 @@ mid = \frac{y_{\text{cur}} + y_{\text{try}}}{2}
     = \frac{y_{\text{cur}} + (y_{\text{cur}} - 30\times 2^{k})}{2}
     = y_{\text{cur}} - 15\times 2^{k}
 $$
+
+We can reduce the multiplication to shift operation:
+
+$$
+30 \times 2^k = (1 << 5) \times 2^k - (1 << 1) \times 2^k = (1 << 5)(1 << k) - (1 << 1)(1 << k)
+$$
+
+So the y_try is:
+
+$$
+y_{\text{try}} = y_{\text{cur}} - (1 << 5)(1 << k) + (1 << 1)(1 << k)
+    = 1000 - (1 << 5)(1 << k) + (1 << 1)(1 << k)
+    = 1000 - (1 << (5 + k)) + (1 << (1 + k))
+$$
+
+### Software program
+```python
+
+```
+### RTL

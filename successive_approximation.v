@@ -59,7 +59,9 @@ module successive_approximation (
                     // midpoint m = (y + (y - 30*2^bit)) / 2 = y - 15*2^bit
                     mid        <= y - (10'd15 << counter);
                     x[counter] <= (target <= mid) ? 1'b1 : 1'b0;
-                    y          <= (target <= mid) ? y - ((1 << (counter + 5)) - (1 << (counter + 1))): y; // 30x = 32x -2x = (1 << 5)x - (1 << 1)x = (1 << 5)(1 << counter) - (1 << 1)(1 << counter)
+
+                    // 30x = 32x -2x = (1 << 5)x - (1 << 1)x = (1 << 5)(1 << counter) - (1 << 1)(1 << counter)
+                    y          <= (target <= mid) ? y - ((1 << (counter + 5)) - (1 << (counter + 1))): y; 
                     counter    <= (counter == 2'd0) ? 2'd0 : (counter - 2'd1);
                     down       <= (counter == 2'd0) ? 1'b1 : 1'b0;
                 end
