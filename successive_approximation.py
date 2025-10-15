@@ -1,8 +1,9 @@
 # Successive Approximation Register (SAR) search for:
 #   y = 1000 - 30*x , where x is a 4-bit code (0..15), y in [550, 1000].
-# The algorithm sets bits from MSB->LSB and decides to keep a bit if the
-# tentative y is still >= target (since y decreases with larger x).
-# After SAR, we also check the neighbor (x+1) to minimize absolute error.
+# The algorithm sets bits from MSB->LSB using midpoint decision:
+#   Let y_cur be current y; for bit b, midpoint m = y_cur - 15*(1<<b).
+#   If clipped target t <= m, keep the bit (set it) and y_cur -= 30*(1<<b).
+# After SAR, also check neighbor (x+1) to minimize absolute error to original target.
 
 from dataclasses import dataclass
 
@@ -21,19 +22,25 @@ def sar_successive_approx(target: int) -> SARResult:
     # Clip target into reachable range [550, 1000] for meaningful SAR behavior
     t = max(550, min(1000, int(target)))
     x = 0
+    y_cur = 1000  # current y corresponding to x
     steps = []
-    # Try bits from MSB (bit3) to LSB (bit0)
+
+    # Try bits from MSB (bit3) to LSB (bit0) using midpoint comparison
     for bit in range(3, -1, -1):
         trial = x | (1 << bit)
         y_trial = y_from_x(trial)
-        keep = y_trial >= t  # keep if we haven't gone below target
+        mid = y_cur - 15 * (1 << bit)
+        keep = t <= mid
         if keep:
             x = trial
+            y_cur -= 30 * (1 << bit)
         steps.append((bit, trial, y_trial, keep))
+
     # After SAR, choose the closer between x and x+1 (if valid)
     candidates = [x]
     if x < 15:
         candidates.append(x + 1)
+
     # Pick the one minimizing absolute error to the (unclipped) original target
     best_x = min(candidates, key=lambda c: abs(y_from_x(c) - target))
     best_y = y_from_x(best_x)
@@ -46,8 +53,10 @@ def main():
         print(f"Target = {res.target}")
         print(f"  -> Best x = {res.x:2d}  (binary {res.x:04b}), y = {res.y}, |y-target| = {res.abs_error}")
         print("  SAR steps (bit, trial_x, trial_y, keep?):")
+        
+        # print the steps in order
         for bit, trial_x, trial_y, keep in res.steps:
-            print(f"    bit{bit}: trial_x={trial_x:2d} (b{trial_x:04b}), y_trial={trial_y:4d}, keep={keep}")
+            print(f"    bit{bit}: trial_x = {trial_x:2d} (b{trial_x:04b}), y_trial = {trial_y:3d}, keep = {keep}")
         print()
 
 if __name__ == "__main__":
