@@ -29,14 +29,16 @@ $$
 \frac{y_{\text{cur}} + y_{\text{try}}}{2}
 $$
 
-So we can use the midpoint decision to decide whether to keep the bit.
+So we can use the midpoint decision to decide whether to keep the bit(set $1000 = y_{\text{cur}}$).
 
 $$
-target \lt \frac{y_{\text{cur}} + y_{\text{try}}}{2}
+y_{\text{try}} = y_{\text{cur}} - 15 \times 2^k = 1000 - 15 \times 2^k
 $$
 
-So we can use the midpoint decision to decide whether to keep the bit.
+And the midpoint is:
 
 $$
-y_{\text{try}} = y_{\text{cur}} - 15 \times 2^k
+mid = \frac{y_{\text{cur}} + y_{\text{try}}}{2}
+    = \frac{y_{\text{cur}} + (y_{\text{cur}} - 30\times 2^{k})}{2}
+    = y_{\text{cur}} - 15\times 2^{k}
 $$
