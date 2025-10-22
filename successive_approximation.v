@@ -2,15 +2,17 @@
 // Successive-Approximation Controller for y = 1000 - 30*x
 // - x is 4-bit: 0..15
 // - y is 10-bit: 550..1000
-// - Given target[9:0], find x that minimizes |y - target|
-// - 1 cycle per bit (total 4 cycles after in_valid); simple FSM
+// - Given target[9:0], find x via direct thresholding per bit:
+//   For each bit from MSB->LSB, try setting it to form trial x.
+//   If y(trial) > clipped_target t (t = clip(target, 550..1000)), keep the bit; else clear it.
+// - 1 cycle per bit (total 4 cycles after start); simple FSM
 // ============================================================
 module successive_approximation (
     input            clk,
-    input            rst,
+    input            rst_n,
     input            start,
     input      [9:0] target,
-    output reg       down,
+    output reg       done,
     output reg [3:0] x,
     output reg [9:0] y
 );
@@ -18,7 +20,17 @@ module successive_approximation (
     reg [1:0] counter;
     reg       state;
     reg       next_state;
-    reg [9:0] mid;
+    reg [9:0] t_reg;       // latched clipped target
+
+    // Combinational pre-calculation regs
+    reg [3:0]  trial_c;
+    reg [9:0]  y_trial_c;
+
+    // Pure combinational block to derive trial/y_trial/keep from current x, counter, and t_reg
+    always @(*) begin
+        trial_c        = x | (4'b0001 << counter);
+        y_trial_c      = 10'd1000 - ((trial_c << 5) - (trial_c << 1));
+    end
 
     localparam IDLE    = 1'b0;
     localparam COMPARE = 1'b1;
@@ -30,21 +42,21 @@ module successive_approximation (
             default: next_state = IDLE;
         endcase
     end
-    
-    always @(posedge clk or negedge rst) begin
-        if(!rst) begin
+
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             state <= IDLE;
         end else begin
             state <= next_state;
         end
     end
 
-    always @(posedge clk or negedge rst) begin
-        if(!rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             x       <=  4'd0;
             y       <= 10'd1000;
             counter <=  2'd3;
-            down    <=  1'b0;
+            done    <=  1'b0;
         end else begin
             case(state)
                 IDLE: begin
@@ -52,24 +64,22 @@ module successive_approximation (
                         x       <=  4'd0;
                         y       <= 10'd1000;
                         counter <=  2'd3;
-                        down    <=  1'b0;
+                        done    <=  1'b0;
+                        // latch clipped target: t = clip(target, 550..1000)
+                        t_reg   <= (target < 10'd550) ? 10'd550 : ((target > 10'd1000) ? 10'd1000 : target);
                     end
                 end
                 COMPARE: begin
-                    // midpoint m = (y + (y - 30*2^bit)) / 2 = y - 15*2^bit
-                    mid        <= y - (10'd15 << counter);
-                    x[counter] <= (target <= mid) ? 1'b1 : 1'b0;
-
-                    // 30x = 32x -2x = (1 << 5)x - (1 << 1)x = (1 << 5)(1 << counter) - (1 << 1)(1 << counter)
-                    y          <= (target <= mid) ? y - ((1 << (counter + 5)) - (1 << (counter + 1))): y; 
+                    x[counter] <= y_trial_c > t_reg;
+                    y          <= y_trial_c > t_reg ? y_trial_c : y;
                     counter    <= (counter == 2'd0) ? 2'd0 : (counter - 2'd1);
-                    down       <= (counter == 2'd0) ? 1'b1 : 1'b0;
+                    done       <= (counter == 2'd0) ? 1'b1 : 1'b0;
                 end
                 default: begin
                     x       <=  4'd0;
                     y       <= 10'd1000;
                     counter <=  2'd3;
-                    down    <=  1'b0;
+                    done    <=  1'b0;
                 end
             endcase
         end

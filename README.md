@@ -1,7 +1,9 @@
 # Timing Circuit Designs and Their Applications - HW1
+
 This is the first homework of the course "Timing Circuit Designs and Their Applications".
 
 ## Overview
+
 Following the assignment instructions, the project delivers:
 
 1. Software program (Python) using successive approximation (midpoint decision) to solve for x that minimizes |y - target|. Verified with targets 630 and 780 and reports x[3:0].
@@ -11,7 +13,9 @@ Following the assignment instructions, the project delivers:
 5. Physical design: generate a layout using an APR tool (e.g., Encounter). Provide post-layout timing and power. Compare max frequency and power to pre-layout results.
 
 ## Successive Approximation(midpoint decision)
+
 ### Mathematical derivation
+
 Original equation:
 
 $$

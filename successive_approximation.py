@@ -1,8 +1,7 @@
 # Successive Approximation Register (SAR) search for:
 #   y = 1000 - 30*x , where x is a 4-bit code (0..15), y in [550, 1000].
-# The algorithm sets bits from MSB->LSB using midpoint decision:
-#   Let y_cur be current y; for bit b, midpoint m = y_cur - 15*(1<<b).
-#   If clipped target t <= m, keep the bit (set it) and y_cur -= 30*(1<<b).
+# The algorithm sets bits from MSB->LSB by direct thresholding:
+#   For bit b, try setting it (trial x). If y(trial) > clipped target t, keep this bit; otherwise clear it.
 # After SAR, also check neighbor (x+1) to minimize absolute error to original target.
 
 from dataclasses import dataclass
@@ -22,18 +21,16 @@ def sar_successive_approx(target: int) -> SARResult:
     # Clip target into reachable range [550, 1000] for meaningful SAR behavior
     t = max(550, min(1000, int(target)))
     x = 0
-    y_cur = 1000  # current y corresponding to x
     steps = []
 
-    # Try bits from MSB (bit3) to LSB (bit0) using midpoint comparison
+    # Try bits from MSB (bit3) to LSB (bit0) using direct threshold comparison
     for bit in range(3, -1, -1):
         trial = x | (1 << bit)
         y_trial = y_from_x(trial)
-        mid = y_cur - 15 * (1 << bit)
-        keep = t <= mid
+        # Keep this bit if trial output exceeds the clipped target (strictly greater)
+        keep = y_trial > t
         if keep:
             x = trial
-            y_cur -= 30 * (1 << bit)
         steps.append((bit, trial, y_trial, keep))
 
     # After SAR, choose the closer between x and x+1 (if valid)
@@ -53,7 +50,7 @@ def main():
         print(f"Target = {res.target}")
         print(f"  -> Best x = {res.x:2d}  (binary {res.x:04b}), y = {res.y}, |y-target| = {res.abs_error}")
         print("  SAR steps (bit, trial_x, trial_y, keep?):")
-        
+
         # print the steps in order
         for bit, trial_x, trial_y, keep in res.steps:
             print(f"    bit{bit}: trial_x = {trial_x:2d} (b{trial_x:04b}), y_trial = {trial_y:3d}, keep = {keep}")
