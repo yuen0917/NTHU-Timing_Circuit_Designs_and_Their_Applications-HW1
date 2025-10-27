@@ -34,10 +34,9 @@ module successive_approximation_tb;
 
     // Test stimulus
     initial begin
-        $fsdbDumpfile("../4.Simulation_Result/successive_approximation_RTL.fsdb");
+        $sdf_annotate("./successive_approximation_syn.sdf", dut);
+        $fsdbDumpfile("../4.Simulation_Result/successive_approximation_syn.fsdb");
         $fsdbDumpvars;
-        $dumpfile("../4.Simulation_Result/successive_approximation_RTL.vcd");
-        $dumpvars;
         // Initialize signals
         rst_n = 0;
         start = 0;
