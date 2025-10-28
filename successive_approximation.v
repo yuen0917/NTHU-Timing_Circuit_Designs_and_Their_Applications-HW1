@@ -86,16 +86,3 @@ module successive_approximation (
     end
 
 endmodule
-
-// module successive_approximation_comb (
-//   input  [9:0] target,
-//   output [3:0] x,
-//   output [9:0] y
-// );
-//   // calculate the closest x
-//   // 30x ≈ 1000 - target => x ≈ (1000 - target)/30
-//   wire [10:0] diff = 11'd1000 - target;
-//   wire [6:0]  div30 = diff / 11'd30;  // synthesizer will expand into constant division circuit
-//   assign x = (div30 > 15) ? 4'd15 : div30[3:0];
-//   assign y = 10'd1000 - (x * 10'd30);
-// endmodule

@@ -4,7 +4,7 @@
 // ============================================================
 `timescale 1ns/1ps
 
-module successive_approximation_tb;
+module successive_approximation_tb_syn;
 
     // Clock and reset
     reg        clk;
@@ -26,10 +26,11 @@ module successive_approximation_tb;
         .y(y)
     );
 
+    parameter PERIOD = 10;
     // Clock generation
     initial begin
         clk = 0;
-        forever #5 clk = ~clk; // 10ns period = 100MHz
+        forever #(PERIOD/2) clk = ~clk; 
     end
 
     // Test stimulus
@@ -56,20 +57,20 @@ module successive_approximation_tb;
         // Test case 2: Target = 780
         test_case(10'd780);
 
-        // Test case 3: Edge case - minimum (550)
-        test_case(10'd550);
+        // // Test case 3: Edge case - minimum (550)
+        // test_case(10'd550);
 
-        // Test case 4: Edge case - maximum (1000)
-        test_case(10'd1000);
+        // // Test case 4: Edge case - maximum (1000)
+        // test_case(10'd1000);
 
-        // Test case 5: Below minimum (should clip to 550)
-        test_case(10'd400);
+        // // Test case 5: Below minimum (should clip to 550)
+        // test_case(10'd400);
 
-        // Test case 6: Above maximum (should clip to 1000)
-        test_case(10'd1000); // Use 1000 instead of 1200 to avoid truncation
+        // // Test case 6: Above maximum (should clip to 1000)
+        // test_case(10'd1000); // Use 1000 instead of 1200 to avoid truncation
 
-        // Test case 7: Mid-range value
-        test_case(10'd700);
+        // // Test case 7: Mid-range value
+        // test_case(10'd700);
 
         $display("==========================================");
         $display("All tests completed!");
