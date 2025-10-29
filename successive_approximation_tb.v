@@ -57,21 +57,6 @@ module successive_approximation_tb;
         // Test case 2: Target = 780
         test_case(10'd780);
 
-        // // Test case 3: Edge case - minimum (550)
-        // test_case(10'd550);
-
-        // // Test case 4: Edge case - maximum (1000)
-        // test_case(10'd1000);
-
-        // // Test case 5: Below minimum (should clip to 550)
-        // test_case(10'd400);
-
-        // // Test case 6: Above maximum (should clip to 1000)
-        // test_case(10'd1000); // Use 1000 instead of 1200 to avoid truncation
-
-        // // Test case 7: Mid-range value
-        // test_case(10'd700);
-
         $display("==========================================");
         $display("All tests completed!");
         $display("==========================================");
@@ -107,17 +92,9 @@ module successive_approximation_tb;
             @(posedge clk);
             while (!done) begin
                 @(posedge clk);
-                $display("  Cycle %d: counter=%d, x=%d (binary %b), y=%d, state=%s",
-                         $time/10, dut.counter, x, x, y, (dut.state) ? "COMPARE" : "IDLE");
             end
             $display("  Done! Final: x=%d (binary %b), y=%d", x, x, y);
         end
     endtask
-
-    // Monitor for debugging
-    initial begin
-        $monitor("Time=%0t: start=%b, target=%d, done=%b, x=%d, y=%d, counter=%d, state=%s",
-                 $time, start, target, done, x, y, dut.counter, (dut.state) ? "COMPARE" : "IDLE");
-    end
 
 endmodule
